@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salary Breakdown</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 0;
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            display: block;
+            box-sizing: border-box;
+        }
+
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Salary Breakdown</h2>
+        <label for="totalSalary">Enter Total Salary (Taka):</label>
+        <input type="number" id="totalSalary" placeholder="Enter total salary" onchange="calculateBreakdown()">
+
+        <h3>Adjust Percentages: <span id="totalPercent"></span></h3>
+
+        <label for="basicPay">Basic Pay (%)</label>
+        <input type="number" id="basicPay" value="55" onchange="calculateBreakdown()">
+
+        <label for="houseRent">House Rent Allowance (%)</label>
+        <input type="number" id="houseRent" value="30" onchange="calculateBreakdown()">
+
+        <label for="conveyance">Conveyance Allowance (%)</label>
+        <input type="number" id="conveyance" value="5" onchange="calculateBreakdown()">
+
+        <label for="medical">Medical Allowance (%)</label>
+        <input type="number" id="medical" value="10" onchange="calculateBreakdown()">
+
+        <label for="management">Management Allowance (%)</label>
+        <input type="number" id="management" value="0" onchange="calculateBreakdown()">
+
+        <label for="holiday">Holiday Allowance (%)</label>
+        <input type="number" id="holiday" value="0" onchange="calculateBreakdown()">
+
+        <label for="arrear">Arrear & Other (%)</label>
+        <input type="number" id="arrear" value="0" onchange="calculateBreakdown()">
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Salary Structure</th>
+                    <th>Amount (Taka)</th>
+                </tr>
+            </thead>
+            <tbody id="breakdownTable">
+                <!-- The breakdown will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function calculateBreakdown() {
+            document.getElementById('breakdownTable').innerHTML = "";
+
+            const totalSalary = isNaN(parseFloat(document.getElementById('totalSalary').value)) ? 0 : parseFloat(document.getElementById('totalSalary').value);
+            const basicPayPercent = isNaN(parseFloat(document.getElementById('basicPay').value)) ? 0 : parseFloat(document.getElementById('basicPay').value);
+            const houseRentPercent = isNaN(parseFloat(document.getElementById('houseRent').value)) ? 0 : parseFloat(document.getElementById('houseRent').value);
+            const conveyancePercent = isNaN(parseFloat(document.getElementById('conveyance').value)) ? 0 : parseFloat(document.getElementById('conveyance').value);
+            const medicalPercent = isNaN(parseFloat(document.getElementById('medical').value)) ? 0 : parseFloat(document.getElementById('medical').value);
+            const managementPercent = isNaN(parseFloat(document.getElementById('management').value)) ? 0 : parseFloat(document.getElementById('management').value);
+            const holidayPercent = isNaN(parseFloat(document.getElementById('holiday').value)) ? 0 : parseFloat(document.getElementById('holiday').value);
+            const arrearPercent = isNaN(parseFloat(document.getElementById('arrear').value)) ? 0 : parseFloat(document.getElementById('arrear').value);
+
+            const totalPercentage = basicPayPercent + houseRentPercent + conveyancePercent + medicalPercent + managementPercent + holidayPercent + arrearPercent;
+
+            document.getElementById('totalPercent').innerHTML = totalPercentage + "%";
+
+            if (!isPositiveNumber(totalSalary)) {
+                document.getElementById('totalSalary').value = '';
+                alert("Total salary must be a positive whole number.");
+                return;
+            }
+
+            if (totalPercentage !== 100) {
+                alert("Total percentage should equal 100%");
+                return;
+            }
+
+            const breakdown = {
+                "Basic Pay": (basicPayPercent / 100) * totalSalary,
+                "House Rent Allowance": (houseRentPercent / 100) * totalSalary,
+                "Conveyance Allowance": (conveyancePercent / 100) * totalSalary,
+                "Medical Allowance": (medicalPercent / 100) * totalSalary,
+                "Management Allowance": (managementPercent / 100) * totalSalary,
+                "Holiday Allowance": (holidayPercent / 100) * totalSalary,
+                "Arrear & Other": (arrearPercent / 100) * totalSalary,
+                "Total Salary": totalSalary,
+            };
+
+            let tableBody = "";
+            for (const [component, amount] of Object.entries(breakdown)) {
+                tableBody += `<tr>
+                                <td>${component}</td>
+                                <td style="text-align: right">${amount > 0 ? formatNumber(amount) : '-'}</td>
+                              </tr>`;
+            }
+
+            document.getElementById('breakdownTable').innerHTML = tableBody;
+        }
+
+        function isPositiveNumber(value) {
+            return !isNaN(value) && Number(value) > 0 && Number.isFinite(Number(value));
+        }
+
+        function formatNumber(num) {
+            return num.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        }
+    </script>
+</body>
+</html>
