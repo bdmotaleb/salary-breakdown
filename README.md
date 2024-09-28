@@ -1,5 +1,7 @@
 # Salary Breakdown Web Application
 
+You can view the salary breakdown by visiting the following link: [Salary Breakdown](https://bdmotaleb.github.io/salary-breakdown)
+
 This is a simple web application designed to calculate and display a detailed salary breakdown based on a total salary and user-defined percentage allocations. The application allows you to adjust the percentages of various salary components to match the specific structure of an organization or individual agreement.
 
 ### Features:
