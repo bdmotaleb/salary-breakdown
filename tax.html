@@ -130,7 +130,7 @@
         .header {
             background: var(--secondary-gradient);
             color: white;
-            padding: 25px;
+            padding: 25px 25px 20px;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -152,6 +152,19 @@
             50% { transform: translateX(100%) translateY(100%) rotate(30deg); }
         }
 
+        .header-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-main {
+            text-align: left;
+        }
+
         .header h1 {
             font-size: 2.1rem;
             font-weight: 800;
@@ -167,20 +180,50 @@
         .header p {
             font-size: 0.95rem;
             opacity: 0.9;
-            position: relative;
-            z-index: 1;
             font-weight: 400;
         }
 
+        .header-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .header-link {
+            padding: 8px 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.5);
+            background: rgba(15, 23, 42, 0.15);
+            color: #e5e7eb;
+            font-size: 0.8rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(8px);
+            transition: all 0.25s ease;
+        }
+
+        .header-link i {
+            font-size: 0.85rem;
+        }
+
+        .header-link:hover {
+            background: rgba(15, 23, 42, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(15,23,42,0.35);
+        }
+
         .content {
-            padding: 28px;
+            padding: 28px 32px 32px;
         }
 
         .input-section {
-            background: linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.8) 100%);
+            background: linear-gradient(135deg, rgba(248, 250, 252, 0.9) 0%, rgba(241, 245, 249, 0.95) 100%);
             border-radius: var(--border-radius-md);
-            padding: 22px;
-            margin-bottom: 25px;
+            padding: 22px 24px;
+            margin-bottom: 28px;
             border: 1px solid rgba(226, 232, 240, 0.5);
             backdrop-filter: blur(10px);
             position: relative;
@@ -338,7 +381,7 @@
         .results-section {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.9) 100%);
             border-radius: var(--border-radius-md);
-            padding: 22px;
+            padding: 20px 22px 22px;
             box-shadow: var(--shadow-md);
             border: 1px solid rgba(226, 232, 240, 0.5);
             backdrop-filter: blur(10px);
@@ -379,11 +422,11 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
             gap: 12px;
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
 
         .stat-card {
-            padding: 12px 14px;
+            padding: 14px 16px;
             border-radius: var(--border-radius-sm);
             border: 1px solid rgba(229, 231, 235, 0.9);
             background: rgba(255, 255, 255, 0.95);
@@ -406,7 +449,7 @@
         .stat-value {
             font-family: 'JetBrains Mono', monospace;
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 1.2rem;
             color: #111827;
         }
 
@@ -573,17 +616,20 @@
         }
 
         .field-table td:first-child {
-            width: 55%;
-            color: #374151;
+            width: 56%;
+            color: #6b7280;
             font-weight: 500;
             padding-right: 8px;
         }
 
         .field-table input[type="number"],
         .field-table input[type="text"] {
-            padding: 6px 8px;
-            font-size: 0.84rem;
+            padding: 7px 10px;
+            font-size: 0.86rem;
             width: 100%;
+            border-radius: 6px;
+            border: 1px solid rgba(209, 213, 219, 0.9);
+            background: #ffffff;
         }
 
         .section-legend {
@@ -624,6 +670,19 @@
                 padding: 8px;
             }
 
+            .header {
+                padding: 18px 18px 16px;
+            }
+
+            .header-inner {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-main {
+                width: 100%;
+            }
+
             .content {
                 padding: 20px;
             }
@@ -660,8 +719,22 @@
 
     <div class="main-container">
         <div class="header">
-            <h1><i class="fas fa-calculator"></i> Tax Calculator</h1>
-            <p>Automated income tax calculation based on Bangladesh slabs</p>
+            <div class="header-inner">
+                <div class="header-main">
+                    <h1><i class="fas fa-calculator"></i> Tax Calculator</h1>
+                    <p>Automated income tax calculation based on Bangladesh slabs</p>
+                </div>
+                <nav class="header-nav">
+                    <a href="index.html" class="header-link">
+                        <i class="fas fa-table-list"></i>
+                        Breakdown
+                    </a>
+                    <a href="tax.html" class="header-link">
+                        <i class="fas fa-receipt"></i>
+                        Tax Calculator
+                    </a>
+                </nav>
+            </div>
         </div>
 
         <div class="content">
