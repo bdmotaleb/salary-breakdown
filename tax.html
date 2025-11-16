@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --error-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.15);
+            --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.2);
+            --border-radius-sm: 8px;
+            --border-radius-md: 12px;
+            --border-radius-lg: 16px;
+            --border-radius-xl: 20px;
+            --transition-fast: 0.15s ease;
+            --transition-normal: 0.3s ease;
+            --transition-slow: 0.5s ease;
+        }
+
+        [data-theme="dark"] {
+            --primary-gradient: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            --secondary-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            --glass-bg: rgba(0, 0, 0, 0.2);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--primary-gradient);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            box-shadow: var(--shadow-md);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .theme-toggle i {
+            font-size: 1.2rem;
+            color: #666;
+            transition: all var(--transition-normal);
+        }
+
+        .main-container {
+            max-width: 1240px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-xl);
+            border: 1px solid var(--glass-border);
+            overflow: hidden;
+            animation: slideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .main-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .header {
+            background: var(--secondary-gradient);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 4s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(30deg); }
+            50% { transform: translateX(100%) translateY(100%) rotate(30deg); }
+        }
+
+        .header h1 {
+            font-size: 2.1rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(45deg, #fff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+            font-weight: 400;
+        }
+
+        .content {
+            padding: 28px;
+        }
+
+        .input-section {
+            background: linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.8) 100%);
+            border-radius: var(--border-radius-md);
+            padding: 22px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(226, 232, 240, 0.5);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .input-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--secondary-gradient);
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+            position: relative;
+        }
+
+        .input-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .input-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all var(--transition-normal);
+        }
+
+        .input-group label:hover {
+            color: #1f2937;
+            transform: translateX(2px);
+        }
+
+        .input-wrapper {
+            position: relative;
+            transition: all var(--transition-normal);
+        }
+
+        .input-wrapper:hover {
+            transform: translateY(-1px);
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6b7280;
+            font-size: 1rem;
+            transition: all var(--transition-normal);
+            z-index: 2;
+        }
+
+        .input-wrapper:hover i {
+            color: #4f46e5;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border: 2px solid rgba(229, 231, 235, 0.8);
+            border-radius: var(--border-radius-sm);
+            font-size: 0.95rem;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all var(--transition-normal);
+            box-shadow: var(--shadow-sm);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1), var(--shadow-md);
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 1);
+        }
+
+        input[type="number"]:hover {
+            border-color: #d1d5db;
+            box-shadow: var(--shadow-md);
+        }
+
+        .taxpayer-type-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .taxpayer-pill {
+            flex: 1 1 120px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(209, 213, 219, 0.9);
+            background: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #374151;
+            transition: all var(--transition-normal);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .taxpayer-pill input {
+            display: none;
+        }
+
+        .taxpayer-pill i {
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+
+        .taxpayer-pill:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .taxpayer-pill.active {
+            border-color: #4f46e5;
+            background: linear-gradient(135deg, rgba(79,70,229,0.1) 0%, rgba(124,58,237,0.15) 100%);
+            color: #111827;
+        }
+
+        .taxpayer-pill.active i {
+            color: #4f46e5;
+        }
+
+        .helper-text {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .two-column-layout {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 20px;
+        }
+
+        .results-section {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.9) 100%);
+            border-radius: var(--border-radius-md);
+            padding: 22px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .results-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--secondary-gradient);
+        }
+
+        .results-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #1f2937;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+
+        .results-title::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, #4f46e5, transparent);
+            margin-left: 10px;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .stat-card {
+            padding: 12px 14px;
+            border-radius: var(--border-radius-sm);
+            border: 1px solid rgba(229, 231, 235, 0.9);
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #111827;
+        }
+
+        .stat-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: rgba(16,185,129,0.08);
+            color: #047857;
+        }
+
+        .stat-chip.warning {
+            background: rgba(245,158,11,0.1);
+            color: #92400e;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: var(--border-radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(5px);
+            font-size: 0.86rem;
+        }
+
+        .results-table th {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.08) 0%, rgba(124, 58, 237, 0.12) 100%);
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 700;
+            color: #374151;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            border-bottom: 2px solid rgba(79, 70, 229, 0.18);
+            position: relative;
+        }
+
+        .results-table th::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--secondary-gradient);
+        }
+
+        .results-table td {
+            padding: 9px 14px;
+            border-bottom: 1px solid rgba(243, 244, 246, 0.9);
+            font-weight: 500;
+            transition: all var(--transition-normal);
+            position: relative;
+        }
+
+        .results-table tr:hover td {
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.04) 0%, rgba(124, 58, 237, 0.04) 100%);
+            transform: scale(1.01);
+        }
+
+        .results-table tr:last-child td {
+            border-bottom: none;
+            background: linear-gradient(135deg, rgba(254, 243, 199, 0.85) 0%, rgba(253, 230, 138, 0.9) 100%);
+            font-weight: 800;
+            color: #92400e;
+        }
+
+        .amount-cell {
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .slab-rate-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: rgba(59,130,246,0.08);
+            color: #1d4ed8;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 32px 20px;
+            color: #6b7280;
+            background: linear-gradient(135deg, rgba(248, 250, 252, 0.6) 0%, rgba(241, 245, 249, 0.7) 100%);
+            border-radius: var(--border-radius-sm);
+            border: 2px dashed rgba(156, 163, 175, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .empty-state::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(79, 70, 229, 0.07) 0%, transparent 70%);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        .empty-state i {
+            font-size: 2.6rem;
+            margin-bottom: 12px;
+            opacity: 0.65;
+            color: #4f46e5;
+            position: relative;
+            z-index: 1;
+        }
+
+        .empty-state p {
+            font-size: 0.95rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .badge-zero-slab {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(16,185,129,0.08);
+            color: #047857;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 6px;
+        }
+
+        .footer-note {
+            margin-top: 14px;
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .field-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.86rem;
+        }
+
+        .field-table td {
+            padding: 6px 4px;
+            vertical-align: middle;
+        }
+
+        .field-table td:first-child {
+            width: 55%;
+            color: #374151;
+            font-weight: 500;
+            padding-right: 8px;
+        }
+
+        .field-table input[type="number"],
+        .field-table input[type="text"] {
+            padding: 6px 8px;
+            font-size: 0.84rem;
+            width: 100%;
+        }
+
+        .section-legend {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #4b5563;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-legend i {
+            color: #4f46e5;
+        }
+
+        .warning-text {
+            font-size: 0.78rem;
+            color: #b45309;
+            margin-top: 2px;
+        }
+
+        .mini-note {
+            font-size: 0.76rem;
+            color: #6b7280;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .theme-toggle {
+                top: 10px;
+                right: 10px;
+                padding: 8px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .input-section,
+            .results-section {
+                padding: 18px;
+            }
+
+            .two-column-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.7rem;
+            }
+
+            .header p {
+                font-size: 0.9rem;
+            }
+
+            .summary-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon" id="theme-icon"></i>
+    </div>
+
+    <div class="main-container">
+        <div class="header">
+            <h1><i class="fas fa-calculator"></i> Tax Calculator</h1>
+            <p>Automated income tax calculation based on Bangladesh slabs</p>
+        </div>
+
+        <div class="content">
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="grossSalary">
+                        <i class="fas fa-money-bill-wave"></i>
+                        Gross Salary with Bonus and Other Benefits (Annual)*
+                    </label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-taka-sign"></i>
+                        <input
+                            type="number"
+                            id="grossSalary"
+                            placeholder="Enter Annual Amount"
+                            oninput="recalculateAll()"
+                        >
+                    </div>
+                    <div class="helper-text">
+                        Same as your old field: include basic, bonus and all taxable benefits for the full year.
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>
+                        <i class="fas fa-user"></i>
+                        Tax Payer Category
+                    </label>
+                    <div class="taxpayer-type-group" id="taxpayerTypeGroup">
+                        <label class="taxpayer-pill active">
+                            <input type="radio" name="taxpayerType" value="1" checked onchange="onTaxpayerTypeChange(event)">
+                            <i class="fas fa-mars"></i>
+                            Male
+                        </label>
+                        <label class="taxpayer-pill">
+                            <input type="radio" name="taxpayerType" value="2" onchange="onTaxpayerTypeChange(event)">
+                            <i class="fas fa-venus"></i>
+                            Female
+                        </label>
+                        <label class="taxpayer-pill">
+                            <input type="radio" name="taxpayerType" value="4" onchange="onTaxpayerTypeChange(event)">
+                            <i class="fas fa-transgender-alt"></i>
+                            Disable / Third Gender
+                        </label>
+                        <label class="taxpayer-pill">
+                            <input type="radio" name="taxpayerType" value="5" onchange="onTaxpayerTypeChange(event)">
+                            <i class="fas fa-medal"></i>
+                            Freedom Fighter
+                        </label>
+                    </div>
+                    <div class="helper-text">
+                        Female and senior categories enjoy a higher tax-free slab. (Using 4,00,000 BDT 0% slab for non-male here.)
+                    </div>
+                    <div id="zeroSlabInfo" class="badge-zero-slab">
+                        <i class="fas fa-circle-info"></i>
+                        Current 0% slab: <span id="zeroSlabAmountLabel">BDT 350,000</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="two-column-layout">
+                <!-- Left: Automated Tax Calculation fields (similar to your old table) -->
+                <div class="results-section">
+                    <div class="results-title">
+                        <i class="fas fa-calculator"></i>
+                        Automated Tax Calculation
+                    </div>
+
+                    <div class="section-legend">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        Income &amp; Investment
+                    </div>
+
+                    <table class="field-table">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    Exempted income
+                                    <br>
+                                    <span class="mini-note">(1/3 of Gross or 4.5 lac, whichever lower)</span>
+                                </td>
+                                <td>
+                                    <input type="number" id="exempted" readonly>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b>Total Taxable Income</b></td>
+                                <td>
+                                    <input type="number" id="taxableIncome" readonly>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Allowable Investment
+                                    <br>
+                                    <span class="mini-note">20% of Taxable Income &amp; Max. 1,00,00,000</span>
+                                </td>
+                                <td>
+                                    <input type="number" id="allowInv" readonly>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Actual Investment*
+                                    <br>
+                                    <span id="invCheck" class="warning-text"></span>
+                                </td>
+                                <td>
+                                    <input type="number" id="actualInv" oninput="recalculateAll()">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b>Total Tax Payable</b></td>
+                                <td>
+                                    <input type="number" id="taxPayable" readonly>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Less: Tax Rebate</td>
+                                <td>
+                                    <input type="number" id="rebate" readonly>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b>Net Tax Payable</b>
+                                    <br>
+                                    <span class="mini-note">Minimum 5,000 BDT (City)</span>
+                                </td>
+                                <td>
+                                    <input type="number" id="netTaxPayable" readonly>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Source Tax</td>
+                                <td>
+                                    <input type="number" id="sourceTax" placeholder="Others Source Tax" oninput="recalculateAll()">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b>Tax Payable With Return =</b></td>
+                                <td>
+                                    <input type="number" id="TaxPayableReturn" readonly>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Monthly TDS (If Investment)</td>
+                                <td>
+                                    <input type="text" id="TDSInv" readonly value="0">
+                                    BDT
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Monthly TDS (Without Investment)</td>
+                                <td>
+                                    <input type="text" id="TDSWoInv" readonly value="0">
+                                    BDT
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="section-legend" style="margin-top: 14px;">
+                        <i class="fas fa-scale-balanced"></i>
+                        Rebate Rules
+                    </div>
+                    <div class="mini-note">
+                        a) 3% of Taxable Income &nbsp; b) 15% of Actual Investment &nbsp; c) 10 lac<br>
+                        <b>NB:</b> Rebate is taken as the <b>lowest</b> of the above three.
+                    </div>
+                </div>
+
+                <!-- Right: Slab breakdown and summary -->
+                <div class="results-section">
+                    <div class="results-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Tax Slab Breakdown
+                    </div>
+
+                    <div id="summaryStats" class="summary-stats" style="display: none;">
+                        <div class="stat-card">
+                            <div class="stat-label">
+                                <i class="fas fa-sack-dollar"></i>
+                                Total Tax Payable
+                            </div>
+                            <div class="stat-value" id="totalTaxAmount">0.00</div>
+                            <span class="stat-chip">
+                                <i class="fas fa-receipt"></i>
+                                Before rebate
+                            </span>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">
+                                <i class="fas fa-percent"></i>
+                                Effective Tax Rate
+                            </div>
+                            <div class="stat-value" id="effectiveTaxRate">0.00%</div>
+                            <span class="stat-chip warning">
+                                <i class="fas fa-scale-balanced"></i>
+                                On taxable income
+                            </span>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">
+                                <i class="fas fa-wallet"></i>
+                                Net Income After Tax
+                            </div>
+                            <div class="stat-value" id="netIncomeAmount">0.00</div>
+                            <span class="stat-chip">
+                                <i class="fas fa-calendar"></i>
+                                Annual
+                            </span>
+                        </div>
+                    </div>
+
+                    <div id="resultsContainer">
+                        <div class="empty-state">
+                            <i class="fas fa-calculator"></i>
+                            <p>Enter your annual gross salary to see the taxable income and slab-wise tax.</p>
+                        </div>
+                    </div>
+
+                    <div class="footer-note">
+                        Rule: Tax Slab<br>
+                        0–3,50,000: 0% (Female / Senior / other preferred categories: 0–4,00,000 at 0%)<br>
+                        Next 1,00,000 @ 5% &middot; Next 4,00,000 @ 10% &middot; Next 5,00,000 @ 15% &middot;
+                        Next 5,00,000 @ 20% &middot; Next 20,00,000 @ 25% &middot; Remaining @ 30%.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function onTaxpayerTypeChange(event) {
+            const group = document.getElementById('taxpayerTypeGroup');
+            const pills = group.querySelectorAll('.taxpayer-pill');
+            pills.forEach(pill => pill.classList.remove('active'));
+            const selectedLabel = event.target.closest('.taxpayer-pill');
+            if (selectedLabel) {
+                selectedLabel.classList.add('active');
+            }
+
+            const zeroSlabAmountLabel = document.getElementById('zeroSlabAmountLabel');
+            const type = event.target.value;
+            // Use 3,50,000 for male; 4,00,000 for others (female/disable/freedom fighters) as per your note
+            if (type === '1') {
+                zeroSlabAmountLabel.textContent = 'BDT 350,000';
+            } else {
+                zeroSlabAmountLabel.textContent = 'BDT 400,000';
+            }
+
+            recalculateAll();
+        }
+
+        function recalculateAll() {
+            const grossInput = document.getElementById('grossSalary');
+            const resultsContainer = document.getElementById('resultsContainer');
+            const summaryStats = document.getElementById('summaryStats');
+
+            const rawGross = parseFloat(grossInput.value);
+            const gross = isNaN(rawGross) ? 0 : rawGross;
+
+            if (!isPositiveNumber(gross)) {
+                summaryStats.style.display = 'none';
+                resultsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-calculator"></i>
+                        <p>Enter a valid positive gross salary amount to calculate tax</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // 1) Exempted income: min(1/3 of gross, 450,000)
+            const exempted = Math.min(gross / 3, 450000);
+            document.getElementById('exempted').value = Math.round(exempted);
+
+            // 2) Total taxable income
+            const taxableIncome = Math.max(gross - exempted, 0);
+            document.getElementById('taxableIncome').value = Math.round(taxableIncome);
+
+            // 3) Allowable investment: 20% of taxable income, max 1,00,00,000 (from old JS)
+            const allowInv = Math.min(taxableIncome * 0.20, 10000000);
+            document.getElementById('allowInv').value = Math.round(allowInv);
+
+            // 4) Actual investment and validation
+            const actualInvInput = document.getElementById('actualInv');
+            const actualInvRaw = parseFloat(actualInvInput.value);
+            const actualInv = isNaN(actualInvRaw) ? 0 : actualInvRaw;
+            const invCheck = document.getElementById('invCheck');
+            if (actualInv > allowInv && allowInv > 0) {
+                invCheck.textContent = 'Actual investment exceeds allowable limit.';
+            } else {
+                invCheck.textContent = '';
+            }
+
+            // 5) Tax slab on taxable income (not gross)
+            const type = document.querySelector('input[name="taxpayerType"]:checked').value;
+            // Match old per-category first slabs:
+            // 1: 3,50,000  | 2: 4,00,000 | 4: 4,75,000 | 5: 5,00,000
+            let firstFree;
+            if (type === '1') {
+                firstFree = 350000;
+            } else if (type === '2') {
+                firstFree = 400000;
+            } else if (type === '4') {
+                firstFree = 475000;
+            } else if (type === '5') {
+                firstFree = 500000;
+            } else {
+                firstFree = 350000;
+            }
+
+            const bands = [
+                { amount: firstFree, rate: 0, label: `0% on first BDT ${formatInteger(firstFree)}` },
+                { amount: 100000, rate: 0.05, label: '5% on next BDT 100,000' },
+                { amount: 400000, rate: 0.10, label: '10% on next BDT 400,000' },
+                { amount: 500000, rate: 0.15, label: '15% on next BDT 500,000' },
+                { amount: 500000, rate: 0.20, label: '20% on next BDT 500,000' },
+                { amount: 2000000, rate: 0.25, label: '25% on next BDT 2,000,000' },
+                { amount: Infinity, rate: 0.30, label: '30% on remaining amount' }
+            ];
+
+            let remaining = taxableIncome;
+            let totalTax = 0;
+            const breakdownRows = [];
+            let lowerLimit = 0;
+
+            for (let i = 0; i < bands.length; i++) {
+                const band = bands[i];
+                const taxableInBand = Math.min(remaining, band.amount);
+                if (taxableInBand <= 0) {
+                    lowerLimit += band.amount === Infinity ? 0 : band.amount;
+                    continue;
+                }
+
+                const taxForBand = taxableInBand * band.rate;
+                totalTax += taxForBand;
+
+                const bandLower = lowerLimit + 1;
+                const bandUpper = (band.amount === Infinity)
+                    ? null
+                    : (lowerLimit + band.amount);
+
+                breakdownRows.push({
+                    label: band.label,
+                    lower: bandLower,
+                    upper: bandUpper,
+                    rate: band.rate * 100,
+                    taxable: taxableInBand,
+                    tax: taxForBand
+                });
+
+                remaining -= taxableInBand;
+                lowerLimit += band.amount === Infinity ? taxableInBand : band.amount;
+
+                if (remaining <= 0) break;
+            }
+
+            // 6) Fill Total Tax Payable (before rebate)
+            document.getElementById('taxPayable').value = Math.round(totalTax);
+            document.getElementById('totalTaxAmount').textContent = formatNumber(totalTax);
+
+            // 7) Rebate calculation:
+            // a) 3% of Taxable Income
+            const rebateA = taxableIncome * 0.03;
+            // b) 15% of Actual Investment
+            const rebateB = actualInv * 0.15;
+            // c) 10,00,000 flat
+            const rebateC = 1000000;
+            const rebate = Math.min(rebateA, rebateB, rebateC);
+            document.getElementById('rebate').value = Math.round(rebate);
+
+            // 8) Net tax payable with city minimum 5,000 (match old: abs then max 5,000)
+            let netTaxRaw = totalTax - rebate;
+            netTaxRaw = Math.round(Math.abs(netTaxRaw));
+            let netTax = Math.max(netTaxRaw, 5000);
+            document.getElementById('netTaxPayable').value = Math.round(netTax);
+
+            // 9) Source tax and tax payable with return
+            const sourceTaxRaw = parseFloat(document.getElementById('sourceTax').value);
+            const sourceTax = isNaN(sourceTaxRaw) ? 0 : sourceTaxRaw;
+            // Old logic: absolute difference
+            let taxPayableReturn = Math.round(netTax - sourceTax);
+            taxPayableReturn = Math.abs(taxPayableReturn);
+            document.getElementById('TaxPayableReturn').value = Math.round(taxPayableReturn);
+
+            // 10) Effective rate (on taxable income) and net income after tax
+            const effectiveRate = taxableIncome > 0 ? (totalTax / taxableIncome) * 100 : 0;
+            const netIncome = gross - netTax;
+
+            document.getElementById('effectiveTaxRate').textContent = effectiveRate.toFixed(2) + '%';
+            document.getElementById('netIncomeAmount').textContent = formatNumber(netIncome);
+
+            summaryStats.style.display = 'grid';
+
+            let tableHTML = `
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-layer-group"></i> Tax Slab</th>
+                            <th><i class="fas fa-percent"></i> Rate</th>
+                            <th><i class="fas fa-coins"></i> Taxable Amount (BDT)</th>
+                            <th><i class="fas fa-receipt"></i> Tax (BDT)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            breakdownRows.forEach(row => {
+                const slabText = row.upper
+                    ? `BDT ${formatInteger(row.lower)} - ${formatInteger(row.upper)}`
+                    : `BDT ${formatInteger(row.lower)} and above`;
+
+                tableHTML += `
+                    <tr>
+                        <td>
+                            ${slabText}
+                            <div class="helper-text">
+                                ${row.label}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="slab-rate-chip">
+                                <i class="fas fa-chart-line"></i>
+                                ${row.rate.toFixed(0)}%
+                            </span>
+                        </td>
+                        <td class="amount-cell">
+                            ${formatNumber(row.taxable)}
+                        </td>
+                        <td class="amount-cell">
+                            ${formatNumber(row.tax)}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    <tr>
+                        <td colspan="3">Total Tax Payable</td>
+                        <td class="amount-cell">${formatNumber(totalTax)}</td>
+                    </tr>
+                </tbody>
+                </table>
+            `;
+
+            resultsContainer.innerHTML = tableHTML;
+
+            // 11) Monthly TDS (follow old conditions)
+            let tdsInv;
+            if (actualInv === '' || actualInv === 0) {
+                tdsInv = 0;
+            } else {
+                tdsInv = Math.round(netTax / 12);
+            }
+            const tdsWithoutInv = totalTax / 12;
+            document.getElementById('TDSInv').value = tdsInv.toString();
+            document.getElementById('TDSWoInv').value = formatNumber(tdsWithoutInv);
+        }
+
+        function isPositiveNumber(value) {
+            return !isNaN(value) && Number(value) > 0 && Number.isFinite(Number(value));
+        }
+
+        function formatNumber(num) {
+            return num.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        }
+
+        function formatInteger(num) {
+            return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'fas fa-moon';
+                localStorage.setItem('tax-theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'fas fa-sun';
+                localStorage.setItem('tax-theme', 'dark');
+            }
+        }
+
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('tax-theme');
+            const themeIcon = document.getElementById('theme-icon');
+
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'fas fa-sun';
+            } else {
+                themeIcon.className = 'fas fa-moon';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeTheme();
+
+            document.addEventListener('keydown', function (e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    recalculateAll();
+                }
+                if (e.key === 'Escape') {
+                    const grossInput = document.getElementById('grossSalary');
+                    grossInput.value = '';
+                    document.getElementById('actualInv').value = '';
+                    document.getElementById('sourceTax').value = '';
+                    recalculateAll();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+
+
