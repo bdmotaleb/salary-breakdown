@@ -1110,7 +1110,7 @@
                                     <td>
                                         Allowable Investment
                                         <br>
-                                        <span class="mini-note">20% of Taxable Income &amp; Max. 1,00,00,000</span>
+                                        <span class="mini-note">15% of Taxable Income &amp; Max. 1,00,00,000</span>
                                     </td>
                                     <td>
                                         <input type="number" id="allowInv" readonly>
@@ -1543,16 +1543,21 @@
             document.getElementById('rebate').value = Math.round(rebate);
 
             // 8) Net tax payable with city minimum 5,000
-            let netTaxRaw = totalTax - rebate;
-            netTaxRaw = Math.round(Math.abs(netTaxRaw));
+            // Rebate reduces tax, but tax cannot go below 0
+            let netTaxRaw = Math.max(totalTax - rebate, 0);
+            netTaxRaw = Math.round(netTaxRaw);
+            // Apply minimum tax of 5,000 for city
             let netTax = Math.max(netTaxRaw, 5000);
             document.getElementById('netTaxPayable').value = Math.round(netTax);
 
             // 9) Source tax and tax payable with return
             const sourceTaxRaw = parseFloat(document.getElementById('sourceTax').value);
             const sourceTax = isNaN(sourceTaxRaw) ? 0 : sourceTaxRaw;
+            // Tax payable with return = net tax - source tax already paid
+            // If negative, it means refund is due
             let taxPayableReturn = Math.round(netTax - sourceTax);
-            taxPayableReturn = Math.abs(taxPayableReturn);
+            // Tax payable cannot be negative (refund is handled separately)
+            taxPayableReturn = Math.max(taxPayableReturn, 0);
             document.getElementById('TaxPayableReturn').value = Math.round(taxPayableReturn);
 
             // 10) Effective rate and net income after tax
