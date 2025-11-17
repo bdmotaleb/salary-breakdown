@@ -484,6 +484,50 @@
             font-size: 1.1rem;
         }
 
+        .highlight-row td {
+            background: linear-gradient(135deg, rgba(254, 243, 199, 0.95) 0%, rgba(253, 230, 138, 0.95) 100%) !important;
+            border-left: 4px solid #f59e0b !important;
+            font-weight: 800 !important;
+            color: #92400e !important;
+            padding: 6px 6px !important;
+        }
+
+        .highlight-row td:first-child {
+            color: #92400e !important;
+        }
+
+        .highlight-row input {
+            background: rgba(255, 255, 255, 1) !important;
+            border: 2px solid #f59e0b !important;
+            font-weight: 800 !important;
+            color: #92400e !important;
+        }
+
+        .highlight-input-row td {
+            background: linear-gradient(135deg, rgba(219, 234, 254, 0.95) 0%, rgba(191, 219, 254, 0.95) 100%) !important;
+            border-left: 4px solid #3b82f6 !important;
+            font-weight: 600 !important;
+            color: #1e40af !important;
+            padding: 6px 6px !important;
+        }
+
+        .highlight-input-row td:first-child {
+            color: #1e40af !important;
+        }
+
+        .highlight-input-row input {
+            background: rgba(255, 255, 255, 1) !important;
+            border: 2px solid #3b82f6 !important;
+            font-weight: 600 !important;
+            color: #1e40af !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+        }
+
+        .highlight-input-row input:focus {
+            border-color: #2563eb !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+        }
+
         .amount-cell {
             text-align: right;
             font-family: 'JetBrains Mono', monospace;
@@ -1072,7 +1116,7 @@
                                         <input type="number" id="allowInv" readonly>
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr class="highlight-input-row">
                                     <td>
                                         Actual Investment*
                                         <br>
@@ -1104,13 +1148,13 @@
                                         <input type="number" id="netTaxPayable" readonly>
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr class="highlight-input-row">
                                     <td>Source Tax</td>
                                     <td>
                                         <input type="number" id="sourceTax" placeholder="Others Source Tax" oninput="recalculateAll()">
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr class="highlight-row">
                                     <td><b>Tax Payable With Return =</b></td>
                                     <td>
                                         <input type="number" id="TaxPayableReturn" readonly>
@@ -1119,14 +1163,14 @@
                                 <tr>
                                     <td>Monthly TDS (If Investment)</td>
                                     <td>
-                                        <input type="text" id="TDSInv" readonly value="0">
+                                        <input type="number" id="TDSInv" readonly value="0">
                                         BDT
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>Monthly TDS (Without Investment)</td>
                                     <td>
-                                        <input type="text" id="TDSWoInv" readonly value="0">
+                                        <input type="number" id="TDSWoInv" readonly value="0">
                                         BDT
                                     </td>
                                 </tr>
