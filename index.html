@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salary Breakdown Calculator</title>
+    <title>Salary Breakdown & Tax Calculator</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js" rel="stylesheet">
     <style>
         :root {
             --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -68,8 +67,34 @@
             z-index: -1;
         }
 
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 50px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all var(--transition-normal);
+            box-shadow: var(--shadow-md);
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .theme-toggle i {
+            font-size: 1.2rem;
+            color: #666;
+            transition: all var(--transition-normal);
+        }
+
         .main-container {
-            max-width: 750px;
+            max-width: 1400px;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
@@ -100,32 +125,6 @@
                 opacity: 1;
                 transform: translateY(0) scale(1);
             }
-        }
-
-        .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 50px;
-            padding: 12px;
-            cursor: pointer;
-            transition: all var(--transition-normal);
-            box-shadow: var(--shadow-md);
-        }
-
-        .theme-toggle:hover {
-            transform: scale(1.1);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .theme-toggle i {
-            font-size: 1.2rem;
-            color: #666;
-            transition: all var(--transition-normal);
         }
 
         .header {
@@ -184,40 +183,64 @@
             font-weight: 400;
         }
 
-        .header-nav {
+        .tab-navigation {
             display: flex;
-            flex-wrap: wrap;
             gap: 8px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 1;
         }
 
-        .header-link {
-            padding: 8px 14px;
+        .tab-button {
+            padding: 10px 20px;
             border-radius: 999px;
             border: 1px solid rgba(255,255,255,0.5);
             background: rgba(15, 23, 42, 0.15);
             color: #e5e7eb;
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             font-weight: 500;
-            text-decoration: none;
+            cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             backdrop-filter: blur(8px);
             transition: all 0.25s ease;
         }
 
-        .header-link i {
-            font-size: 0.85rem;
-        }
-
-        .header-link:hover {
+        .tab-button:hover {
             background: rgba(15, 23, 42, 0.3);
             transform: translateY(-1px);
-            box-shadow: 0 6px 18px rgba(15,23,42,0.35);
+        }
+
+        .tab-button.active {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255,255,255,0.8);
+            color: #fff;
+            font-weight: 600;
         }
 
         .content {
             padding: 30px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .input-section {
@@ -293,7 +316,7 @@
             transform: translateY(-50%) scale(1.1);
         }
 
-        input[type="number"] {
+        input[type="number"], input[type="text"] {
             width: 100%;
             padding: 12px 12px 12px 40px;
             border: 2px solid rgba(229, 231, 235, 0.8);
@@ -306,7 +329,7 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        input[type="number"]:focus {
+        input[type="number"]:focus, input[type="text"]:focus {
             outline: none;
             border-color: #4f46e5;
             box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1), var(--shadow-md);
@@ -314,7 +337,7 @@
             background: rgba(255, 255, 255, 1);
         }
 
-        input[type="number"]:hover {
+        input[type="number"]:hover, input[type="text"]:hover {
             border-color: #d1d5db;
             box-shadow: var(--shadow-md);
         }
@@ -400,12 +423,10 @@
             margin-left: 10px;
         }
 
-        .chart-container {
-            margin-bottom: 30px;
-            background: rgba(255, 255, 255, 0.7);
-            border-radius: var(--border-radius-md);
-            padding: 20px;
-            backdrop-filter: blur(5px);
+        .two-column-layout {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 20px;
         }
 
         .results-table {
@@ -538,48 +559,197 @@
             z-index: 1;
         }
 
-        .loading-spinner {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(79, 70, 229, 0.2);
-            border-left: 4px solid #4f46e5;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
+        /* Tax Calculator Specific Styles */
+        .taxpayer-type-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .taxpayer-pill {
+            flex: 1 1 120px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(209, 213, 219, 0.9);
+            background: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #374151;
+            transition: all var(--transition-normal);
+            box-shadow: var(--shadow-sm);
         }
 
-        .progress-bar {
+        .taxpayer-pill input {
+            display: none;
+        }
+
+        .taxpayer-pill i {
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+
+        .taxpayer-pill:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .taxpayer-pill.active {
+            border-color: #4f46e5;
+            background: linear-gradient(135deg, rgba(79,70,229,0.1) 0%, rgba(124,58,237,0.15) 100%);
+            color: #111827;
+        }
+
+        .taxpayer-pill.active i {
+            color: #4f46e5;
+        }
+
+        .helper-text {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            padding: 14px 16px;
+            border-radius: var(--border-radius-sm);
+            border: 1px solid rgba(229, 231, 235, 0.9);
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #111827;
+        }
+
+        .stat-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: rgba(16,185,129,0.08);
+            color: #047857;
+        }
+
+        .stat-chip.warning {
+            background: rgba(245,158,11,0.1);
+            color: #92400e;
+        }
+
+        .field-table {
             width: 100%;
-            height: 6px;
-            background: rgba(229, 231, 235, 0.5);
-            border-radius: 3px;
-            overflow: hidden;
-            margin: 20px 0;
+            border-collapse: collapse;
+            font-size: 0.86rem;
         }
 
-        .progress-fill {
-            height: 100%;
-            background: var(--secondary-gradient);
-            border-radius: 3px;
-            transition: width 0.5s ease;
-            position: relative;
+        .field-table td {
+            padding: 6px 4px;
+            vertical-align: middle;
         }
 
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shimmer 2s infinite;
+        .field-table td:first-child {
+            width: 56%;
+            color: #6b7280;
+            font-weight: 500;
+            padding-right: 8px;
+        }
+
+        .field-table input[type="number"],
+        .field-table input[type="text"] {
+            padding: 7px 10px;
+            font-size: 0.86rem;
+            width: 100%;
+            border-radius: 6px;
+            border: 1px solid rgba(209, 213, 219, 0.9);
+            background: #ffffff;
+        }
+
+        .section-legend {
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #4b5563;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .section-legend i {
+            color: #4f46e5;
+        }
+
+        .warning-text {
+            font-size: 0.78rem;
+            color: #b45309;
+            margin-top: 2px;
+        }
+
+        .mini-note {
+            font-size: 0.76rem;
+            color: #6b7280;
+        }
+
+        .badge-zero-slab {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: rgba(16,185,129,0.08);
+            color: #047857;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 6px;
+        }
+
+        .footer-note {
+            margin-top: 14px;
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .slab-rate-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            background: rgba(59,130,246,0.08);
+            color: #1d4ed8;
+            font-size: 0.75rem;
+            font-weight: 600;
         }
 
         @media (max-width: 768px) {
@@ -626,6 +796,10 @@
                 padding: 20px;
             }
 
+            .two-column-layout {
+                grid-template-columns: 1fr;
+            }
+
             .results-table th,
             .results-table td {
                 padding: 10px 12px;
@@ -665,9 +839,13 @@
                 font-size: 0.8rem;
             }
 
-            input[type="number"] {
+            input[type="number"], input[type="text"] {
                 padding: 10px 10px 10px 35px;
                 font-size: 0.9rem;
+            }
+
+            .summary-stats {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -681,107 +859,337 @@
         <div class="header">
             <div class="header-inner">
                 <div class="header-main">
-                    <h1><i class="fas fa-calculator"></i> Salary Breakdown Calculator</h1>
-                    <p>Calculate your salary components with precision</p>
+                    <h1><i class="fas fa-calculator"></i> Salary Breakdown & Tax Calculator</h1>
+                    <p>Calculate your salary components and income tax in one place</p>
                 </div>
-                <nav class="header-nav">
-                    <a href="index.html" class="header-link">
-                        <i class="fas fa-table-list"></i>
-                        Breakdown
-                    </a>
-                    <a href="tax.html" class="header-link">
-                        <i class="fas fa-receipt"></i>
-                        Tax Calculator
-                    </a>
-                </nav>
+            </div>
+            <div class="tab-navigation">
+                <button class="tab-button active" onclick="switchTab('breakdown')">
+                    <i class="fas fa-table-list"></i>
+                    Salary Breakdown
+                </button>
+                <button class="tab-button" onclick="switchTab('tax')">
+                    <i class="fas fa-receipt"></i>
+                    Tax Calculator
+                </button>
             </div>
         </div>
 
         <div class="content">
-            <div class="input-section">
-                <div class="input-group">
-                    <label for="totalSalary"><i class="fas fa-money-bill-wave"></i> Total Salary (Taka)</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-taka-sign"></i>
-                        <input type="number" id="totalSalary" placeholder="Enter your total salary amount" onchange="calculateBreakdown()">
+            <!-- Salary Breakdown Tab -->
+            <div id="breakdown-tab" class="tab-content active">
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="totalSalary"><i class="fas fa-money-bill-wave"></i> Total Salary (Taka)</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-taka-sign"></i>
+                            <input type="number" id="totalSalary" placeholder="Enter your total salary amount" onchange="calculateBreakdown()">
+                        </div>
+                    </div>
+
+                    <div class="percentage-summary" id="percentageSummary">
+                        <i class="fas fa-percentage"></i> Total Percentage: <span id="totalPercent">100%</span>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="basicPay"><i class="fas fa-home"></i> Basic Pay (%)</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-percent"></i>
+                            <input type="number" id="basicPay" value="55" onchange="calculateBreakdown()">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="houseRent"><i class="fas fa-building"></i> House Rent Allowance (%)</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-percent"></i>
+                            <input type="number" id="houseRent" value="30" onchange="calculateBreakdown()">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="conveyance"><i class="fas fa-car"></i> Conveyance Allowance (%)</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-percent"></i>
+                            <input type="number" id="conveyance" value="5" onchange="calculateBreakdown()">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="medical"><i class="fas fa-heartbeat"></i> Medical Allowance (%)</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-percent"></i>
+                            <input type="number" id="medical" value="10" onchange="calculateBreakdown()">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="management"><i class="fas fa-briefcase"></i> Management Allowance (%)</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-percent"></i>
+                            <input type="number" id="management" value="0" onchange="calculateBreakdown()">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="holiday"><i class="fas fa-plane"></i> Holiday Allowance (%)</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-percent"></i>
+                            <input type="number" id="holiday" value="0" onchange="calculateBreakdown()">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="arrear"><i class="fas fa-plus-circle"></i> Arrear & Other (%)</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-percent"></i>
+                            <input type="number" id="arrear" value="0" onchange="calculateBreakdown()">
+                        </div>
                     </div>
                 </div>
 
-                <div class="percentage-summary" id="percentageSummary">
-                    <i class="fas fa-percentage"></i> Total Percentage: <span id="totalPercent">100%</span>
-                </div>
-
-                <div class="input-group">
-                    <label for="basicPay"><i class="fas fa-home"></i> Basic Pay (%)</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-percent"></i>
-        <input type="number" id="basicPay" value="55" onchange="calculateBreakdown()">
+                <div class="results-section">
+                    <div class="results-title">
+                        <i class="fas fa-chart-pie"></i>
+                        Salary Breakdown Results
                     </div>
-                </div>
-
-                <div class="input-group">
-                    <label for="houseRent"><i class="fas fa-building"></i> House Rent Allowance (%)</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-percent"></i>
-        <input type="number" id="houseRent" value="30" onchange="calculateBreakdown()">
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label for="conveyance"><i class="fas fa-car"></i> Conveyance Allowance (%)</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-percent"></i>
-        <input type="number" id="conveyance" value="5" onchange="calculateBreakdown()">
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label for="medical"><i class="fas fa-heartbeat"></i> Medical Allowance (%)</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-percent"></i>
-        <input type="number" id="medical" value="10" onchange="calculateBreakdown()">
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label for="management"><i class="fas fa-briefcase"></i> Management Allowance (%)</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-percent"></i>
-        <input type="number" id="management" value="0" onchange="calculateBreakdown()">
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label for="holiday"><i class="fas fa-plane"></i> Holiday Allowance (%)</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-percent"></i>
-        <input type="number" id="holiday" value="0" onchange="calculateBreakdown()">
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label for="arrear"><i class="fas fa-plus-circle"></i> Arrear & Other (%)</label>
-                    <div class="input-wrapper">
-                        <i class="fas fa-percent"></i>
-        <input type="number" id="arrear" value="0" onchange="calculateBreakdown()">
+                    
+                    <div id="breakdownResultsContainer">
+                        <div class="empty-state">
+                            <i class="fas fa-calculator"></i>
+                            <p>Enter your salary details above to see the breakdown</p>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="results-section">
-                <div class="results-title">
-                    <i class="fas fa-chart-pie"></i>
-                    Salary Breakdown Results
+            <!-- Tax Calculator Tab -->
+            <div id="tax-tab" class="tab-content">
+                <div class="input-section">
+                    <div class="input-group">
+                        <label for="grossSalary">
+                            <i class="fas fa-money-bill-wave"></i>
+                            Gross Salary with Bonus and Other Benefits (Annual)*
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-taka-sign"></i>
+                            <input
+                                type="number"
+                                id="grossSalary"
+                                placeholder="Enter Annual Amount"
+                                oninput="recalculateAll()"
+                            >
+                        </div>
+                        <div class="helper-text">
+                            Same as your old field: include basic, bonus and all taxable benefits for the full year.
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>
+                            <i class="fas fa-user"></i>
+                            Tax Payer Category
+                        </label>
+                        <div class="taxpayer-type-group" id="taxpayerTypeGroup">
+                            <label class="taxpayer-pill active">
+                                <input type="radio" name="taxpayerType" value="1" checked onchange="onTaxpayerTypeChange(event)">
+                                <i class="fas fa-mars"></i>
+                                Male
+                            </label>
+                            <label class="taxpayer-pill">
+                                <input type="radio" name="taxpayerType" value="2" onchange="onTaxpayerTypeChange(event)">
+                                <i class="fas fa-venus"></i>
+                                Female
+                            </label>
+                            <label class="taxpayer-pill">
+                                <input type="radio" name="taxpayerType" value="4" onchange="onTaxpayerTypeChange(event)">
+                                <i class="fas fa-transgender-alt"></i>
+                                Disable / Third Gender
+                            </label>
+                            <label class="taxpayer-pill">
+                                <input type="radio" name="taxpayerType" value="5" onchange="onTaxpayerTypeChange(event)">
+                                <i class="fas fa-medal"></i>
+                                Freedom Fighter
+                            </label>
+                        </div>
+                        <div class="helper-text">
+                            Female and senior categories enjoy a higher tax-free slab. (Using 4,00,000 BDT 0% slab for non-male here.)
+                        </div>
+                        <div id="zeroSlabInfo" class="badge-zero-slab">
+                            <i class="fas fa-circle-info"></i>
+                            Current 0% slab: <span id="zeroSlabAmountLabel">BDT 350,000</span>
+                        </div>
+                    </div>
                 </div>
-                
-                <div class="chart-container" id="chartContainer" style="display: none;">
-                    <canvas id="salaryChart" width="400" height="200"></canvas>
-                </div>
-                
-                <div id="resultsContainer">
-                    <div class="empty-state">
-                        <i class="fas fa-calculator"></i>
-                        <p>Enter your salary details above to see the breakdown</p>
+
+                <div class="two-column-layout">
+                    <!-- Left: Automated Tax Calculation fields -->
+                    <div class="results-section">
+                        <div class="results-title">
+                            <i class="fas fa-calculator"></i>
+                            Automated Tax Calculation
+                        </div>
+
+                        <div class="section-legend">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            Income &amp; Investment
+                        </div>
+
+                        <table class="field-table">
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        Exempted income
+                                        <br>
+                                        <span class="mini-note">(1/3 of Gross or 4.5 lac, whichever lower)</span>
+                                    </td>
+                                    <td>
+                                        <input type="number" id="exempted" readonly>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><b>Total Taxable Income</b></td>
+                                    <td>
+                                        <input type="number" id="taxableIncome" readonly>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Allowable Investment
+                                        <br>
+                                        <span class="mini-note">20% of Taxable Income &amp; Max. 1,00,00,000</span>
+                                    </td>
+                                    <td>
+                                        <input type="number" id="allowInv" readonly>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Actual Investment*
+                                        <br>
+                                        <span id="invCheck" class="warning-text"></span>
+                                    </td>
+                                    <td>
+                                        <input type="number" id="actualInv" oninput="recalculateAll()">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><b>Total Tax Payable</b></td>
+                                    <td>
+                                        <input type="number" id="taxPayable" readonly>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Less: Tax Rebate</td>
+                                    <td>
+                                        <input type="number" id="rebate" readonly>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <b>Net Tax Payable</b>
+                                        <br>
+                                        <span class="mini-note">Minimum 5,000 BDT (City)</span>
+                                    </td>
+                                    <td>
+                                        <input type="number" id="netTaxPayable" readonly>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Source Tax</td>
+                                    <td>
+                                        <input type="number" id="sourceTax" placeholder="Others Source Tax" oninput="recalculateAll()">
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><b>Tax Payable With Return =</b></td>
+                                    <td>
+                                        <input type="number" id="TaxPayableReturn" readonly>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Monthly TDS (If Investment)</td>
+                                    <td>
+                                        <input type="text" id="TDSInv" readonly value="0">
+                                        BDT
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Monthly TDS (Without Investment)</td>
+                                    <td>
+                                        <input type="text" id="TDSWoInv" readonly value="0">
+                                        BDT
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="section-legend" style="margin-top: 14px;">
+                            <i class="fas fa-scale-balanced"></i>
+                            Rebate Rules
+                        </div>
+                        <div class="mini-note">
+                            a) 3% of Taxable Income &nbsp; b) 15% of Actual Investment &nbsp; c) 10 lac<br>
+                            <b>NB:</b> Rebate is taken as the <b>lowest</b> of the above three.
+                        </div>
+                    </div>
+
+                    <!-- Right: Slab breakdown and summary -->
+                    <div class="results-section">
+                        <div class="results-title">
+                            <i class="fas fa-chart-bar"></i>
+                            Tax Slab Breakdown
+                        </div>
+
+                        <div id="summaryStats" class="summary-stats" style="display: none;">
+                            <div class="stat-card">
+                                <div class="stat-label">
+                                    <i class="fas fa-sack-dollar"></i>
+                                    Total Tax Payable
+                                </div>
+                                <div class="stat-value" id="totalTaxAmount">0.00</div>
+                                <span class="stat-chip">
+                                    <i class="fas fa-receipt"></i>
+                                    Before rebate
+                                </span>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">
+                                    <i class="fas fa-percent"></i>
+                                    Effective Tax Rate
+                                </div>
+                                <div class="stat-value" id="effectiveTaxRate">0.00%</div>
+                                <span class="stat-chip warning">
+                                    <i class="fas fa-scale-balanced"></i>
+                                    On taxable income
+                                </span>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">
+                                    <i class="fas fa-wallet"></i>
+                                    Net Income After Tax
+                                </div>
+                                <div class="stat-value" id="netIncomeAmount">0.00</div>
+                                <span class="stat-chip">
+                                    <i class="fas fa-calendar"></i>
+                                    Annual
+                                </span>
+                            </div>
+                        </div>
+
+                        <div id="taxResultsContainer">
+                            <div class="empty-state">
+                                <i class="fas fa-calculator"></i>
+                                <p>Enter your annual gross salary to see the taxable income and slab-wise tax.</p>
+                            </div>
+                        </div>
+
+                        <div class="footer-note">
+                            Rule: Tax Slab<br>
+                            0–3,50,000: 0% (Female / Senior / other preferred categories: 0–4,00,000 at 0%)<br>
+                            Next 1,00,000 @ 5% &middot; Next 4,00,000 @ 10% &middot; Next 5,00,000 @ 15% &middot;
+                            Next 5,00,000 @ 20% &middot; Next 20,00,000 @ 25% &middot; Remaining @ 30%.
+                        </div>
                     </div>
                 </div>
             </div>
@@ -789,8 +1197,28 @@
     </div>
 
     <script>
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + '-tab').classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.closest('.tab-button').classList.add('active');
+        }
+
+        // Salary Breakdown Calculator Functions
         function calculateBreakdown() {
-            const resultsContainer = document.getElementById('resultsContainer');
+            const resultsContainer = document.getElementById('breakdownResultsContainer');
             const percentageSummary = document.getElementById('percentageSummary');
 
             const totalSalary = isNaN(parseFloat(document.getElementById('totalSalary').value)) ? 0 : parseFloat(document.getElementById('totalSalary').value);
@@ -818,13 +1246,13 @@
             if (!isPositiveNumber(totalSalary)) {
                 document.getElementById('totalSalary').value = '';
                 showNotification("Total salary must be a positive number.", "error");
-                showEmptyState();
+                showEmptyState('breakdown');
                 return;
             }
 
             if (totalPercentage !== 100) {
                 showNotification("Total percentage should equal 100%", "warning");
-                showEmptyState();
+                showEmptyState('breakdown');
                 return;
             }
 
@@ -900,85 +1328,249 @@
                 
                 // Animate table rows
                 setTimeout(() => {
-                    animateResults();
+                    animateResults('breakdown');
                 }, 200);
             }, 100);
 
             showNotification("Salary breakdown calculated successfully!", "success");
         }
 
-        function showEmptyState() {
-            const resultsContainer = document.getElementById('resultsContainer');
-            resultsContainer.innerHTML = `
+        function showEmptyState(type) {
+            const container = type === 'breakdown' 
+                ? document.getElementById('breakdownResultsContainer')
+                : document.getElementById('taxResultsContainer');
+            container.innerHTML = `
                 <div class="empty-state">
                     <i class="fas fa-calculator"></i>
-                    <p>Enter your salary details above to see the breakdown</p>
+                    <p>${type === 'breakdown' ? 'Enter your salary details above to see the breakdown' : 'Enter your annual gross salary to see the taxable income and slab-wise tax.'}</p>
                 </div>
             `;
         }
 
-        function showNotification(message, type) {
-            // Remove existing notifications
-            const existingNotification = document.querySelector('.notification');
-            if (existingNotification) {
-                existingNotification.remove();
+        // Tax Calculator Functions
+        function onTaxpayerTypeChange(event) {
+            const group = document.getElementById('taxpayerTypeGroup');
+            const pills = group.querySelectorAll('.taxpayer-pill');
+            pills.forEach(pill => pill.classList.remove('active'));
+            const selectedLabel = event.target.closest('.taxpayer-pill');
+            if (selectedLabel) {
+                selectedLabel.classList.add('active');
             }
 
-            // Create notification element
-            const notification = document.createElement('div');
-            notification.className = `notification notification-${type}`;
-            notification.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'exclamation-triangle'}"></i>
-                <span>${message}</span>
-            `;
-
-            // Add notification styles
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#f59e0b'};
-                color: white;
-                padding: 15px 20px;
-                border-radius: 10px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                z-index: 1000;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                font-weight: 500;
-                animation: slideInRight 0.3s ease;
-                max-width: 300px;
-            `;
-
-            // Add animation keyframes
-            if (!document.querySelector('#notification-styles')) {
-                const style = document.createElement('style');
-                style.id = 'notification-styles';
-                style.textContent = `
-                    @keyframes slideInRight {
-                        from {
-                            transform: translateX(100%);
-                            opacity: 0;
-                        }
-                        to {
-                            transform: translateX(0);
-                            opacity: 1;
-                        }
-                    }
-                `;
-                document.head.appendChild(style);
+            const zeroSlabAmountLabel = document.getElementById('zeroSlabAmountLabel');
+            const type = event.target.value;
+            if (type === '1') {
+                zeroSlabAmountLabel.textContent = 'BDT 350,000';
+            } else if (type === '2') {
+                zeroSlabAmountLabel.textContent = 'BDT 400,000';
+            } else if (type === '4') {
+                zeroSlabAmountLabel.textContent = 'BDT 475,000';
+            } else if (type === '5') {
+                zeroSlabAmountLabel.textContent = 'BDT 500,000';
+            } else {
+                zeroSlabAmountLabel.textContent = 'BDT 350,000';
             }
 
-            document.body.appendChild(notification);
-
-            // Auto remove after 3 seconds
-            setTimeout(() => {
-                notification.style.animation = 'slideInRight 0.3s ease reverse';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
+            recalculateAll();
         }
 
+        function recalculateAll() {
+            const grossInput = document.getElementById('grossSalary');
+            const resultsContainer = document.getElementById('taxResultsContainer');
+            const summaryStats = document.getElementById('summaryStats');
+
+            const rawGross = parseFloat(grossInput.value);
+            const gross = isNaN(rawGross) ? 0 : rawGross;
+
+            if (!isPositiveNumber(gross)) {
+                summaryStats.style.display = 'none';
+                showEmptyState('tax');
+                return;
+            }
+
+            // 1) Exempted income: min(1/3 of gross, 450,000)
+            const exempted = Math.min(gross / 3, 450000);
+            document.getElementById('exempted').value = Math.round(exempted);
+
+            // 2) Total taxable income
+            const taxableIncome = Math.max(gross - exempted, 0);
+            document.getElementById('taxableIncome').value = Math.round(taxableIncome);
+
+            // 3) Allowable investment: 20% of taxable income, max 1,00,00,000
+            const allowInv = Math.min(taxableIncome * 0.20, 10000000);
+            document.getElementById('allowInv').value = Math.round(allowInv);
+
+            // 4) Actual investment and validation
+            const actualInvInput = document.getElementById('actualInv');
+            const actualInvRaw = parseFloat(actualInvInput.value);
+            const actualInv = isNaN(actualInvRaw) ? 0 : actualInvRaw;
+            const invCheck = document.getElementById('invCheck');
+            if (actualInv > allowInv && allowInv > 0) {
+                invCheck.textContent = 'Actual investment exceeds allowable limit.';
+            } else {
+                invCheck.textContent = '';
+            }
+
+            // 5) Tax slab on taxable income
+            const type = document.querySelector('input[name="taxpayerType"]:checked').value;
+            let firstFree;
+            if (type === '1') {
+                firstFree = 350000;
+            } else if (type === '2') {
+                firstFree = 400000;
+            } else if (type === '4') {
+                firstFree = 475000;
+            } else if (type === '5') {
+                firstFree = 500000;
+            } else {
+                firstFree = 350000;
+            }
+
+            const bands = [
+                { amount: firstFree, rate: 0, label: `0% on first BDT ${formatInteger(firstFree)}` },
+                { amount: 100000, rate: 0.05, label: '5% on next BDT 100,000' },
+                { amount: 400000, rate: 0.10, label: '10% on next BDT 400,000' },
+                { amount: 500000, rate: 0.15, label: '15% on next BDT 500,000' },
+                { amount: 500000, rate: 0.20, label: '20% on next BDT 500,000' },
+                { amount: 2000000, rate: 0.25, label: '25% on next BDT 2,000,000' },
+                { amount: Infinity, rate: 0.30, label: '30% on remaining amount' }
+            ];
+
+            let remaining = taxableIncome;
+            let totalTax = 0;
+            const breakdownRows = [];
+            let lowerLimit = 0;
+
+            for (let i = 0; i < bands.length; i++) {
+                const band = bands[i];
+                const taxableInBand = Math.min(remaining, band.amount);
+                if (taxableInBand <= 0) {
+                    lowerLimit += band.amount === Infinity ? 0 : band.amount;
+                    continue;
+                }
+
+                const taxForBand = taxableInBand * band.rate;
+                totalTax += taxForBand;
+
+                const bandLower = lowerLimit + 1;
+                const bandUpper = (band.amount === Infinity)
+                    ? null
+                    : (lowerLimit + band.amount);
+
+                breakdownRows.push({
+                    label: band.label,
+                    lower: bandLower,
+                    upper: bandUpper,
+                    rate: band.rate * 100,
+                    taxable: taxableInBand,
+                    tax: taxForBand
+                });
+
+                remaining -= taxableInBand;
+                lowerLimit += band.amount === Infinity ? taxableInBand : band.amount;
+
+                if (remaining <= 0) break;
+            }
+
+            // 6) Fill Total Tax Payable (before rebate)
+            document.getElementById('taxPayable').value = Math.round(totalTax);
+            document.getElementById('totalTaxAmount').textContent = formatNumber(totalTax);
+
+            // 7) Rebate calculation
+            const rebateA = taxableIncome * 0.03;
+            const rebateB = actualInv * 0.15;
+            const rebateC = 1000000;
+            const rebate = Math.min(rebateA, rebateB, rebateC);
+            document.getElementById('rebate').value = Math.round(rebate);
+
+            // 8) Net tax payable with city minimum 5,000
+            let netTaxRaw = totalTax - rebate;
+            netTaxRaw = Math.round(Math.abs(netTaxRaw));
+            let netTax = Math.max(netTaxRaw, 5000);
+            document.getElementById('netTaxPayable').value = Math.round(netTax);
+
+            // 9) Source tax and tax payable with return
+            const sourceTaxRaw = parseFloat(document.getElementById('sourceTax').value);
+            const sourceTax = isNaN(sourceTaxRaw) ? 0 : sourceTaxRaw;
+            let taxPayableReturn = Math.round(netTax - sourceTax);
+            taxPayableReturn = Math.abs(taxPayableReturn);
+            document.getElementById('TaxPayableReturn').value = Math.round(taxPayableReturn);
+
+            // 10) Effective rate and net income after tax
+            const effectiveRate = taxableIncome > 0 ? (totalTax / taxableIncome) * 100 : 0;
+            const netIncome = gross - netTax;
+
+            document.getElementById('effectiveTaxRate').textContent = effectiveRate.toFixed(2) + '%';
+            document.getElementById('netIncomeAmount').textContent = formatNumber(netIncome);
+
+            summaryStats.style.display = 'grid';
+
+            let tableHTML = `
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-layer-group"></i> Tax Slab</th>
+                            <th><i class="fas fa-percent"></i> Rate</th>
+                            <th><i class="fas fa-coins"></i> Taxable Amount (BDT)</th>
+                            <th><i class="fas fa-receipt"></i> Tax (BDT)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            breakdownRows.forEach(row => {
+                const slabText = row.upper
+                    ? `BDT ${formatInteger(row.lower)} - ${formatInteger(row.upper)}`
+                    : `BDT ${formatInteger(row.lower)} and above`;
+
+                tableHTML += `
+                    <tr>
+                        <td>
+                            ${slabText}
+                            <div class="helper-text">
+                                ${row.label}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="slab-rate-chip">
+                                <i class="fas fa-chart-line"></i>
+                                ${row.rate.toFixed(0)}%
+                            </span>
+                        </td>
+                        <td class="amount-cell">
+                            ${formatNumber(row.taxable)}
+                        </td>
+                        <td class="amount-cell">
+                            ${formatNumber(row.tax)}
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    <tr>
+                        <td colspan="3">Total Tax Payable</td>
+                        <td class="amount-cell">${formatNumber(totalTax)}</td>
+                    </tr>
+                </tbody>
+                </table>
+            `;
+
+            resultsContainer.innerHTML = tableHTML;
+
+            // 11) Monthly TDS
+            let tdsInv;
+            if (actualInv === '' || actualInv === 0) {
+                tdsInv = 0;
+            } else {
+                tdsInv = Math.round(netTax / 12);
+            }
+            const tdsWithoutInv = totalTax / 12;
+            document.getElementById('TDSInv').value = tdsInv.toString();
+            document.getElementById('TDSWoInv').value = formatNumber(tdsWithoutInv);
+        }
+
+        // Common Utility Functions
         function isPositiveNumber(value) {
             return !isNaN(value) && Number(value) > 0 && Number.isFinite(Number(value));
         }
@@ -987,14 +1579,16 @@
             return num.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
         }
 
+        function formatInteger(num) {
+            return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
         function showNotification(message, type) {
-            // Remove existing notifications
             const existingNotification = document.querySelector('.notification');
             if (existingNotification) {
                 existingNotification.remove();
             }
 
-            // Create notification element
             const notification = document.createElement('div');
             notification.className = `notification notification-${type}`;
             notification.innerHTML = `
@@ -1002,7 +1596,6 @@
                 <span>${message}</span>
             `;
 
-            // Add notification styles
             notification.style.cssText = `
                 position: fixed;
                 top: 20px;
@@ -1022,7 +1615,6 @@
                 backdrop-filter: blur(10px);
             `;
 
-            // Add animation keyframes
             if (!document.querySelector('#notification-styles')) {
                 const style = document.createElement('style');
                 style.id = 'notification-styles';
@@ -1043,19 +1635,27 @@
 
             document.body.appendChild(notification);
 
-            // Auto remove after 3 seconds
             setTimeout(() => {
                 notification.style.animation = 'slideInRight 0.3s ease reverse';
                 setTimeout(() => notification.remove(), 300);
             }, 3000);
         }
 
-        function isPositiveNumber(value) {
-            return !isNaN(value) && Number(value) > 0 && Number.isFinite(Number(value));
-        }
-
-        function formatNumber(num) {
-            return num.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        function animateResults(type) {
+            const container = type === 'breakdown' 
+                ? document.getElementById('breakdownResultsContainer')
+                : document.getElementById('taxResultsContainer');
+            const rows = container.querySelectorAll('.results-table tbody tr');
+            rows.forEach((row, index) => {
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-20px)';
+                
+                setTimeout(() => {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '1';
+                    row.style.transform = 'translateX(0)';
+                }, index * 100);
+            });
         }
 
         // Dark mode functionality
@@ -1075,7 +1675,6 @@
             }
         }
 
-        // Initialize theme from localStorage
         function initializeTheme() {
             const savedTheme = localStorage.getItem('theme');
             const themeIcon = document.getElementById('theme-icon');
@@ -1088,52 +1687,24 @@
             }
         }
 
-        // Enhanced animation for results
-        function animateResults() {
-            const rows = document.querySelectorAll('.results-table tbody tr');
-            rows.forEach((row, index) => {
-                row.style.opacity = '0';
-                row.style.transform = 'translateX(-20px)';
-                
-                setTimeout(() => {
-                    row.style.transition = 'all 0.3s ease';
-                    row.style.opacity = '1';
-                    row.style.transform = 'translateX(0)';
-                }, index * 100);
-            });
-        }
-
-        // Add keyboard shortcuts
-        function addKeyboardShortcuts() {
-            document.addEventListener('keydown', function(e) {
-                // Ctrl/Cmd + Enter to calculate
-                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                    calculateBreakdown();
-                }
-                
-                // Escape to clear all inputs
-                if (e.key === 'Escape') {
-                    const inputs = document.querySelectorAll('input[type="number"]');
-                    inputs.forEach(input => {
-                        if (input.id !== 'totalSalary') {
-                            input.value = input.id === 'basicPay' ? '55' : 
-                                        input.id === 'houseRent' ? '30' : 
-                                        input.id === 'conveyance' ? '5' : 
-                                        input.id === 'medical' ? '10' : '0';
-                        }
-                    });
-                    calculateBreakdown();
-                }
-            });
-        }
-
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function() {
             initializeTheme();
-            addKeyboardShortcuts();
+            
+            // Add keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    const activeTab = document.querySelector('.tab-content.active');
+                    if (activeTab.id === 'breakdown-tab') {
+                        calculateBreakdown();
+                    } else {
+                        recalculateAll();
+                    }
+                }
+            });
             
             // Add loading animation to inputs
-            const inputs = document.querySelectorAll('input[type="number"]');
+            const inputs = document.querySelectorAll('input[type="number"], input[type="text"]');
             inputs.forEach(input => {
                 input.addEventListener('focus', function() {
                     this.parentElement.style.transform = 'scale(1.02)';
@@ -1143,9 +1714,6 @@
                     this.parentElement.style.transform = 'scale(1)';
                 });
             });
-            
-            // Initialize with default values
-            // calculateBreakdown();
         });
     </script>
 </body>
